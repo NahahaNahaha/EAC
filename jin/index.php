@@ -178,7 +178,7 @@ while( $row = mysql_fetch_assoc( $resource ) ) {
 
   print "<th scope='row'>$num</th>";
 
-  print "<td><a href = http://ec2-3-16-154-62.us-east-2.compute.amazonaws.com/jin/post.php>$row[Title]</a></td>";
+  print "<td><a href = http://ec2-3-16-154-62.us-east-2.compute.amazonaws.com/jin/post.php?idx={$row[PSSN]}>$row[Title]</a></td>";
 
   print "<td>$row2[ID]</td>";
 
@@ -238,7 +238,15 @@ print "</tr>";
 
 
 
-    <div class="container">
+    <?php
+  if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {
+?>
+
+<?php
+  } else {
+?>
+
+<div class="container">
 
       <form class="navbar-form navbar-right" method=POST action=write.php>
 
@@ -249,6 +257,9 @@ print "</tr>";
     </div>
 
 
+<?php
+  }
+?>
 
     <footer>
 
