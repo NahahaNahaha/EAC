@@ -45,7 +45,7 @@ session_start();
 
     <!-- Navbar -->
     <ul class="navbar-nav ml-auto ml-md-0">
-		<?php	
+		<?php
 			if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {
 		?>
           <a class="btn btn-light" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
@@ -97,100 +97,8 @@ session_start();
       <div id="content-wrapper">
 
         <div class="container-fluid">
-
-          <!-- Navbar Search -->
-          <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
-            <div class="input-group" style="margin-bottom:10px;">
-              <div class="input-group-btn search-panel">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                  <span id="search_concept">Filter by</span> <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" role="menu">
-                  <li><a href="#contains"> Contains</a></li>
-                  <li><a href="#its_equal"> It's equal</a></li>
-                  <li><a href="#greather_than"> Greather than ></a></li>
-                  <li><a href="#less_than"> Less than < </a></li>
-                  <li class="divider"></li>
-                  <li><a href="#all">Anything</a></li>
-                </ul>
-              </div>
-              <input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
-              <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
-                  <i class="fas fa-search"></i>
-                </button>
-              </div>
-            </div>
-          </form>
-
-
-		<?php
-			if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {}
-			else{
-		?>
-          <div class="new-item" style="float:right">
-            <a class="dropdown-item" href="#" data-toggle="modal" data-target="#new-item-modal">
-              <button class="btn btn-large btn-primary" type="button">
-                <i class="fas fa-plus"></i>
-              </button>
-            </a>
-          </div>
-		  <?php
-			}
-			?>
-
           <!-- Page Content -->
 
-
-
-					
-          <div class="row">
-		  <?php
-		  error_reporting(E_ALL);
-		  ini_set("display_errors", 1);
-		  
-		  include_once "clip-db.php";			
-			
-			$sql = "SELECT * FROM video ORDER BY End_date DESC;";
-			$result = mysqli_query($db, $sql);
-			$resultCheck = mysqli_num_rows($result);
-			
-			if($resultCheck>0){
-				while($row = mysqli_fetch_assoc($result)){
-					
-					// Host번호로 ID 찾기
-					$idResult = mysqli_query($db, "select member.ID, video.Host from member, video where member.SSN=".$row["Host"].";");
-					$idRow = mysqli_fetch_assoc($idResult);
-					
-					echo'<div class="col-md-3">
-						<div class="card mb-3 box-shadow">
-							<div class="card-body">
-							  <div class="caption">
-								<h4>'.$row["Title"].'</h4>
-
-								  <p style="font-size:14px">seller: '.$idRow["ID"].'</p>
-								  <div class="form-group row">
-									<label for="inputEmail3" style="font-size:14px" class="col-sm-4 col-form-label">Current Price</label>
-									<div class="col-sm-8">
-									  <input type="text" class="form-control" id="current_price" placeholder="'.$row["Current_bid"].'" readonly>
-									</div>
-								  </div>
-								  <p align="center" >
-									<input type="button" name="view" value="상세 정보 보기" id="'.$row["VSSN"].'" class="btn btn-light btn-block view_data"/>
-								  </p>
-								</div>
-								<div class="d-flex justify-content-between align-items-center">
-								  <small class="text-muted">left: 9 mins</small>
-								</div>
-							  </div>
-						</div>
-					</div>';
-				}
-			}
-			?>
-			</div>
-
-            <!--/. div class="row" -->
             <!--/. Page Content -->
             <!-- /.container-fluid -->
 
@@ -237,7 +145,7 @@ session_start();
 						</div>
 						<div class="modal-footer">
 						  <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-						  <button class="btn btn-primary" type="submit">Login</button>
+						  <button class="btn btn-light" type="submit">Login</button>
 						</div>
 					</form>
                   </div>
@@ -257,7 +165,7 @@ session_start();
                     <div class="modal-body">정말 로그아웃 하실건가요</div>
                     <div class="modal-footer">
                       <button class="btn btn-secondary" type="button" data-dismiss="modal">취소</button>
-                      <a class="btn btn-primary" href="signout.php">로그아웃</a>
+                      <a class="btn btn-light" href="signout.php">로그아웃</a>
                     </div>
                   </div>
                 </div>
@@ -314,14 +222,14 @@ session_start();
 								  <span class="input-group-addon"><i class="glyphicon glyphicon-picture"></i></span>
 								  <input type="text" class="form-control input-lg" name="clipname" disabled placeholder="16MB 이하 동영상 파일(mp4 등)">
 								  <span class="input-group-btn">
-									<button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button>
+									<button class="browse btn btn-light input-lg" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button>
 								  </span>
 								</div>
 							  </div>
 							</div>
 						</div>
 						<div class="modal-footer">
-							<button class="btn btn-primary" type="submit" name="submit">Upload</button>
+							<button class="btn btn-light" type="submit" name="submit">Upload</button>
 							<button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
 						</div>
 					</form>

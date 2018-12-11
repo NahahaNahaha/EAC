@@ -1,0 +1,9 @@
+.file {
+  visibility: hidden;
+  position: absolute;
+}
+
+.mypage{
+	padding: 50px;
+	padding-right: 200px;
+}

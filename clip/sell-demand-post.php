@@ -1,7 +1,10 @@
 <?php
 
+include 'db.php';
 session_start();
+
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -17,7 +20,7 @@ session_start();
   <title>Everybody's Auction</title>
 
   <!-- Bootstrap core CSS-->
-  <link href="vendor/bootstrap/css/bootstrap.css" rel="stylesheet">
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
@@ -28,8 +31,6 @@ session_start();
   <!-- Custom styles for this template-->
   <link href="css/sb-admin.css" rel="stylesheet">
 
-  <link href="css/sj.css" rel="stylesheet">
-  
 </head>
  
  
@@ -45,7 +46,7 @@ session_start();
 
     <!-- Navbar -->
     <ul class="navbar-nav ml-auto ml-md-0">
-		<?php	
+		<?php
 			if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {
 		?>
           <a class="btn btn-light" href="#" data-toggle="modal" data-target="#loginModal">Login</a>
@@ -123,74 +124,105 @@ session_start();
             </div>
           </form>
 
-
-		<?php
-			if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {}
-			else{
+		<?php	
+			if( !isset($_SESSION[is_login]) && $_SESSION[in_login] != 1 ) {
+			} else {
 		?>
+		  	  
           <div class="new-item" style="float:right">
             <a class="dropdown-item" href="#" data-toggle="modal" data-target="#new-item-modal">
               <button class="btn btn-large btn-primary" type="button">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-pen"></i>
               </button>
             </a>
           </div>
-		  <?php
+		<?php
 			}
-			?>
-
+		?>
+		
           <!-- Page Content -->
+    <!-- Main jumbotron for a primary marketing message or call to action -->
 
+    <div class="jumbotron">
+      <div class="container">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th> 번호 </th>
+              <th> 게시글 제목 </th>
+              <th> 작성자 </th>
+	      <th> 작성시간 </th>
+	      <th> 조회수 </th>
+            </tr>
+          </thead>
+          <tbody>
 
+			<?php
+			mysql_query("set session character_set_connection=utf8;");
+			mysql_query("set session character_set_results=utf8;");
+			mysql_query("set session character_set_client=utf8;");
 
-					
-          <div class="row">
-		  <?php
-		  error_reporting(E_ALL);
-		  ini_set("display_errors", 1);
-		  
-		  include_once "clip-db.php";			
-			
-			$sql = "SELECT * FROM video ORDER BY End_date DESC;";
-			$result = mysqli_query($db, $sql);
-			$resultCheck = mysqli_num_rows($result);
-			
-			if($resultCheck>0){
-				while($row = mysqli_fetch_assoc($result)){
-					
-					// Host번호로 ID 찾기
-					$idResult = mysqli_query($db, "select member.ID, video.Host from member, video where member.SSN=".$row["Host"].";");
-					$idRow = mysqli_fetch_assoc($idResult);
-					
-					echo'<div class="col-md-3">
-						<div class="card mb-3 box-shadow">
-							<div class="card-body">
-							  <div class="caption">
-								<h4>'.$row["Title"].'</h4>
+			$resource = mysql_query( " SELECT * FROM post" );
 
-								  <p style="font-size:14px">seller: '.$idRow["ID"].'</p>
-								  <div class="form-group row">
-									<label for="inputEmail3" style="font-size:14px" class="col-sm-4 col-form-label">Current Price</label>
-									<div class="col-sm-8">
-									  <input type="text" class="form-control" id="current_price" placeholder="'.$row["Current_bid"].'" readonly>
-									</div>
-								  </div>
-								  <p align="center" >
-									<input type="button" name="view" value="상세 정보 보기" id="'.$row["VSSN"].'" class="btn btn-light btn-block view_data"/>
-								  </p>
-								</div>
-								<div class="d-flex justify-content-between align-items-center">
-								  <small class="text-muted">left: 9 mins</small>
-								</div>
-							  </div>
-						</div>
-					</div>';
-				}
+			$total_len = mysql_num_rows( $resource );
+
+			if( isset($_GET[idx]) ) {
+			  $start = $_GET[idx] * 10;
+			  $sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT $start, 10";
+			} else {
+			  $sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT 10";
 			}
-			?>
-			</div>
 
-            <!--/. div class="row" -->
+			$resource = mysql_query( $sql );
+
+			$num = 1;
+
+			while( $row = mysql_fetch_assoc( $resource ) ) {
+				
+			 $sql2 = "SELECT * FROM member WHERE SSN='{$row[Author]}'";
+			 $resource2 = mysql_query($sql2);
+			 $row2 = mysql_fetch_assoc($resource2);
+			 
+			  print "<tr>";
+			  print "<th scope='row'>$num</th>";
+			  //print "<td><a href = ../clip/post-select.php?idx={$row[PSSN]}>$row[Title]</a></td>";
+			  print "<td><a data-toggle='modal' href='#item-info-modal' class='view_data' id='$row[PSSN]'>$row[Title]</a></td>";
+			  print "<td>$row2[ID]</td>";
+			  print "<td>$row[Date]</td>";
+			  print "<td>$row[View]</td>";
+			  print "</tr>";
+
+			  $num++;
+
+			}
+
+			$count = (int)($total_len / 10);
+			if( $total_len % 10 ) { $count++; }
+
+			print "<tr>";
+			print "<td colspan=4 align=center>";
+
+			for( $i = 0; $i < $count; $i++ ) {
+
+			  print "<a href=../clip/sell-demand-post.php?idx={$i}> [";
+			  $j = $i+1;
+			  print $j;
+			  print "] </a>";
+
+			}
+			print "</td>";
+			print "</tr>";
+
+			?>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </div>
+
             <!--/. Page Content -->
             <!-- /.container-fluid -->
 
@@ -263,19 +295,19 @@ session_start();
                 </div>
               </div>
 			
-			<!-- Clip upload modal! -->
+			<!-- post upload modal! -->
             <div class="modal fade" id="new-item-modal" tabindex="-1" role="dialog" aria-labelledby="uploadModalLabel" aria-hidden="true">
                <div class="modal-dialog" role="document">
 			   	<?php	
 				echo'
 					<div class="modal-content">
 						<div class="modal-header">
-						  <h4 class="modal-title" id="uploadModalLabel">클립 올리기</h4>
+						  <h4 class="modal-title" id="uploadModalLabel">판매 요청 올리기</h4>
 						  <button class="close" type="button" data-dismiss="modal" aria-label="Close">
 							<span aria-hidden="true">×</span>
 						  </button>
 						</div>
-					<form action ="clip-upload.php" method="post" enctype ="multipart/form-data">
+					<form action ="write_ok.php" method="post" enctype ="multipart/form-data">
 						<div class="modal-body">
 							<div class="clip-upload">
 							  <div class="form-group">
@@ -285,38 +317,7 @@ session_start();
 								<input type="title" name = "title" class="form-control" id="title" placeholder="제목 입력...">
 							  </div>
 							  <div class="form-group">
-								  <select class="custom-select mr-sm-2" id="category">
-									<option selected>카테고리 선택...</option>
-									<option value="1">의류</option>
-									<option value="2">뷰티 잡화</option>
-									<option value="3">식품 마트 유아</option>
-									<option value="4">가구 생활 건강 렌탈</option>
-									<option value="5">디지털 가전 컴퓨터</option>
-									<option value="6">스포츠 레저 자동차</option>
-									<option value="7">도서 티켓 여행</option>
-								  </select>
-							  </div>
-							  <div class="form-group">
-								<input type="title" name = "current_bid" class="form-control" id="current_bid" placeholder="시작가">
-							  </div>
-							  <div class="form-group">
-								<input type="title" name = "instant_bid" class="form-control" id="instant_bid" placeholder="즉시 구매가">
-							  </div>
-							  <div class="form-group">
-								<input type="title" name = "low_bid" class="form-control" id="low_bid" placeholder="최소 입찰 단위(원)">
-							  </div>
-							  <div class="form-group">
-								<textarea class="form-control" id="desc" name="desc" rows="3" placeholder="상품 설명..."></textarea>
-							  </div>
-							 <div class="form-group">
-								<input type="file" name="clip" class="file">
-								<div class="input-group col-xs-12">
-								  <span class="input-group-addon"><i class="glyphicon glyphicon-picture"></i></span>
-								  <input type="text" class="form-control input-lg" name="clipname" disabled placeholder="16MB 이하 동영상 파일(mp4 등)">
-								  <span class="input-group-btn">
-									<button class="browse btn btn-primary input-lg" type="button"><i class="glyphicon glyphicon-search"></i> Browse</button>
-								  </span>
-								</div>
+								<textarea class="form-control" id="desc" name="body" rows="3" placeholder="내용 작성..."></textarea>
 							  </div>
 							</div>
 						</div>
@@ -345,10 +346,6 @@ session_start();
 						<div class="modal-body" id="item-detail">
 						</div>
 						<div class="modal-footer">
-						    <div class="col-auto my-1">
-							<input type="text" class="form-control" id="bid" placeholder="입찰가">
-							</div>
-							<button class="btn btn-primary" type="submit" name="submit">입찰하기</button>
 							<button class="btn btn-secondary" type="button" data-dismiss="modal">닫기</button>
 						</div>
 					</div>
@@ -364,20 +361,19 @@ session_start();
 
               <!-- Custom scripts for all pages-->
               <script src="js/sb-admin.min.js"></script>
-             
+              
 
             </body>
 
 </html>
-
- <script>  
+<script>
  $(document).ready(function(){  
       $('.view_data').click(function(){  // class name
-           var vssn = $(this).attr("id");  // id tag
+           var pssn = $(this).attr("id");  // id tag
            $.ajax({  
-                url:"clip-select.php",  
+                url:"post-select.php",  
                 method:"post",  
-                data:{vssn:vssn},  
+		data:{pssn:pssn},
                 success:function(data){  
                      $('#item-detail').html(data);  // id of modal-body
                      $('#item-info-modal').modal("show");  // id of modal
@@ -385,14 +381,4 @@ session_start();
            });  
       });  
  });  
- 
- // 파일 첨부 스크립트
- $(document).on('click', '.browse', function(){
-  var file = $(this).parent().parent().parent().find('.file');
-  file.trigger('click');
-});
-$(document).on('change', '.file', function(){
-  $(this).parent().find('.form-control').val($(this).val().replace(/C:\\fakepath\\/i, ''));
-});
- </script>
- 
+</script>

@@ -11,10 +11,15 @@ if(isset($_POST['submit']))
 	{
 		$newClipName = strtolower(str_replace(" ", "-", $newClipName));
 	}
-	$clipTitle = $_POST['cliptitle'];
-	$clipDesc = $_POST['clipdesc'];
+	$user_ssn = $_POST['user_id'];
+	$clipTitle = $_POST['title'];
+	$clipCategory = $_POST['category'];
+	$clipCurrent = $_POST['current_bid'];
+	$clipInstant = $_POST['instant_bid'];
+	$clipLow = $_POST['low_bid'];
+	$clipDesc = $_POST['desc'];
 	
-	$tempUserNumber = 1; /////////////////////////////////////// 임시 유저 번호....
+	$tempUserNumber = 21; /////////////////////////////////////// 임시 유저 번호....
 	
 	$clip = $_FILES['clip']; 
 	
@@ -60,7 +65,7 @@ if(isset($_POST['submit']))
 						// "test.mp4", "clip", $tempUserNumber, "temp_title","It is nothing but the test case.", "temp_category", "temp_product", NOW(), DATE_ADD(NOW(), INTERVAL 4 HOUR), 0, 1000, 500, 10000);
 						// mysqli_stmt_execute($stmt);
 						
-						$sql = "INSERT INTO video (File, Type, Host, Title, Description, Category, Product, Start_date, End_date, View, Current_bid, Low_bid, Instant_bid) VALUES ('$clipFullName', 'clip', $tempUserNumber, '$clipTitle','It is nothing but the test case.', 'temp_category', 'temp_product', NOW(), DATE_ADD(NOW(), INTERVAL 4 HOUR), 0, 1000, 500, 10000);";
+						$sql = "INSERT INTO video (File, Type, Host, Title, Description, Category, Product, Start_date, End_date, View, Current_bid, Low_bid, Instant_bid) VALUES ('$clipFullName', 'clip', $user_ssn, '$clipTitle','$clipDesc', 'temp_category', 'temp_product', NOW(), DATE_ADD(NOW(), INTERVAL 1 DAY), 0, $clipCurrent, $clipLow, $clipInstant);";
 						mysqli_query($db, $sql);
 						
 						// 클립 업로드
