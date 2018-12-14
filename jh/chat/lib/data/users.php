@@ -24,16 +24,9 @@ $users[1]['userName'] = 'admin';
 $users[1]['password'] = 'admin';
 $users[1]['channels'] = array(0,1);
 
-// Sample moderator user:
-$users[2] = array();
-$users[2]['userRole'] = AJAX_CHAT_MODERATOR;
-$users[2]['userName'] = 'moderator';
-$users[2]['password'] = 'moderator';
-$users[2]['channels'] = array(0,1);
-
 // Sample registered user:
-$users[3] = array();
-$users[3]['userRole'] = AJAX_CHAT_USER;
-$users[3]['userName'] = 'user';
-$users[3]['password'] = 'user';
-$users[3]['channels'] = array(0,1);
+$users[2] = array();
+$users[2]['userRole'] = AJAX_CHAT_USER;
+$users[2]['userName'] = 'user';
+$users[2]['password'] = 'user';
+$users[2]['channels'] = array(0,1);

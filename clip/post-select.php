@@ -4,18 +4,17 @@
  {  
       $output = '';  
       $connect = mysqli_connect( "eacinstance.cmqbzqnyewvh.us-east-2.rds.amazonaws.com", "root", "11111111", "eac");  
-mysql_query("set session character_set_connection=utf8;");
-mysql_query("set session character_set_results=utf8;");
-mysql_query("set session character_set_client=utf8;");
-
+	  mysqli_query($connect, 'set names utf8');
 
       $query = "SELECT * FROM post WHERE PSSN = '".$_POST["pssn"]."'";  
-      $result = mysqli_query($connect, $query);  
+      $result = mysqli_query($connect, $query);
+    $query2 = "UPDATE post SET View = View + 1 WHERE PSSN = '".$_POST["pssn"]."'";
+$result2 = mysqli_query($connect, $query2);  
       $output .= '  
       <div class="table-responsive">  
-           <table class="table table-bordered">';  
+	   <table class="table table-bordered">';
       while($row = mysqli_fetch_array($result))  
-      {  
+      { 
            $output .= '  
                 <tr>  
                      <td width="30%"><label>내용</label></td>  

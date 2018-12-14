@@ -100,24 +100,21 @@ session_start();
         <div class="container-fluid">
 
           <!-- Navbar Search -->
-          <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0">
+          <form class="d-none d-md-inline-block form-inline ml-auto mr-0 mr-md-3 my-2 my-md-0" method=POST action="sell-demand-post.php?stype=title">
             <div class="input-group" style="margin-bottom:10px;">
               <div class="input-group-btn search-panel">
                 <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
                   <span id="search_concept">Filter by</span> <span class="caret"></span>
                 </button>
                 <ul class="dropdown-menu" role="menu">
-                  <li><a href="#contains"> Contains</a></li>
-                  <li><a href="#its_equal"> It's equal</a></li>
-                  <li><a href="#greather_than"> Greather than ></a></li>
-                  <li><a href="#less_than"> Less than < </a></li>
-                  <li class="divider"></li>
-                  <li><a href="#all">Anything</a></li>
+                  <li><a href="?stype=title"> 제목 </a></li>
+                  <li><a href="?stype=author"> 작성자 </a></li>
+                  <li><a href="?stype=content"> 내용 </a></li>
                 </ul>
               </div>
-              <input type="text" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
+              <input type="text" name = "sword" class="form-control" placeholder="Search for..." aria-label="Search" aria-describedby="basic-addon2">
               <div class="input-group-append">
-                <button class="btn btn-primary" type="button">
+                <button class="btn btn-primary" type="submit">
                   <i class="fas fa-search"></i>
                 </button>
               </div>
@@ -161,18 +158,53 @@ session_start();
 			mysql_query("set session character_set_connection=utf8;");
 			mysql_query("set session character_set_results=utf8;");
 			mysql_query("set session character_set_client=utf8;");
-
-			$resource = mysql_query( " SELECT * FROM post" );
-
+			if(isset($_GET[stype])){
+				$cate = $_GET[stype];
+				$word = $_POST[sword];
+				if($cate == "title"){
+					$sql = "SELECT * FROM post WHERE Title like '%{$word}%'";
+				}
+				if($cate == "author"){
+					$sql = "SELECT * FROM post WHERE Author like '%$word%'";
+				}
+				if($cate == "content"){
+					$sql = "SELECT * FROM post WHERE Description like '%$word%'";
+				}
+			} else{
+			$sql = " SELECT * FROM post";
+			}
+			$resource = mysql_query($sql);
 			$total_len = mysql_num_rows( $resource );
 
-			if( isset($_GET[idx]) ) {
-			  $start = $_GET[idx] * 10;
-			  $sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT $start, 10";
-			} else {
-			  $sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT 10";
+			                        if(isset($_GET[idx])){
+		$start = $_GET[idx] * 10;
+                                if($cate == "title"){
+                                        $sql = "SELECT * FROM post WHERE Title like '%$word%' ORDER BY PSSN DESC LIMIT $start, 10";
+                                }
+                                if($cate == "author"){
+                                        $sql = "SELECT * FROM post WHERE Author like '%$word%'  ORDER BY PSSN DESC LIMIT $start, 10";
+                                }
+                                if($cate == "content"){
+                                        $sql = "SELECT * FROM post WHERE Description like '%$word%'  ORDER BY PSSN DESC LIMIT $start, 10";
+                                }
+		else{
+			$sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT $start, 10";
+		}
+                        } else{
+                        	    if($cate == "title"){
+                                        $sql = "SELECT * FROM post WHERE Title like '%$word%' ORDER BY PSSN DESC LIMIT 10";
+                                }
+                                if($cate == "author"){
+                                        $sql = "SELECT * FROM post WHERE Author like '%$word%' ORDER BY PSSN DESC LIMIT 10";
+                                }
+                                if($cate == "content"){
+                                        $sql = "SELECT * FROM post WHERE Description like '%$word%' ORDER BY PSSN DESC LIMIT 10";
+                                }
+		else{
+			$sql = "SELECT * FROM post ORDER BY PSSN DESC LIMIT 10";
+		}
 			}
-
+			
 			$resource = mysql_query( $sql );
 
 			$num = 1;
