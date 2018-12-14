@@ -1,0 +1,29 @@
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+        
+        
+   <!--
+	Defines a properties file for dereferencing variables
+	-->
+	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="location" value="/WEB-INF/red5-web.properties" />
+	</bean>
+        
+       
+     <!-- Simple REST security configuration for administrator -->
+
+	<bean id="restTokenAuthenticator" class="com.red5pro.services.streammanager.rest.security.RestTokenAuthenticator" init-method="initialize">
+		<property name="administratorToken" value="${rest.administratorToken}"/>
+	</bean>
+
+
+	<bean id="authFilter" class="com.red5pro.services.streammanager.rest.filters.Authenticationfilter">
+		<property name="tokenAuthenticator" ref="restTokenAuthenticator"/>
+	</bean>  
+
+</beans>

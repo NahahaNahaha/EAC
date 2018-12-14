@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lang="http://www.springframework.org/schema/lang" xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+	http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd"> 
+ 
+    <bean id="red5Pro.multibitrateResolver" name="red5Pro.multibitrateResolver" lazy-init="false" class="com.red5pro.override.internal.ProvisionResolverService">  
+        <property name="spliteration" value="~" /> 
+        <!-- Only allow provisions created via cluster api servlet. --> 
+        <property name="strictModeling" value="false" /> 
+    </bean> 
+
+    <bean id="red5.pro.secondscreen.datamanager" name="red5.pro.secondscreen.datamanager" lazy-init="true" class="com.red5pro.server.secondscreen.session.DataManager"> 
+    </bean> 
+    <bean id="red5.pro.secondscreen.clientNotificationService" name="red5.pro.secondscreen.clientNotificationService" lazy-init="true" class="com.red5pro.server.secondscreen.session.ClientNotificationService"> 
+    </bean> 
+    <bean name="configuration" id="configuration" class="com.red5pro.activation.Red5ProConfiguration"> 
+        <property name="rtsp" value="true" /> 
+        <property name="secondscreen" value="false" /> 
+        <property name="websockets" value="true" /> 
+        <property name="rtspPort" value="8554" /> 
+        <property name="secondScreenPort" value="8088" /> 
+        <property name="websocketPort" value="6262" /> 
+        <property name="enableRecording" value="true" /> 
+        <!-- internal native code flag. false --> 
+        <property name="reservedInternalFlag1" value="false" /> 
+        <!-- Red5Pro Cauldron linkage --> 
+        <property name="libraryLoader" value="com.red5pro.media.transform.codec.LibraryLoader" /> 
+        <property name="cauldronDeployer" value="com.red5pro.media.transform.codec.AVCDecoder" /> 
+        <property name="nativeLoader" value="com.red5pro.media.transform.codec.AVCProcessor" /> 
+    </bean> 
+    <bean name="minaConfig" id="minaConfig" class="com.red5pro.activation.ProMinaConfiguration"> 
+        <property name="acceptorBacklog" value="32" /> 
+        <!-- CPU Processor thread count
+        <property name="ioThreads" value="8"/>
+        --> 
+        <property name="readerIdleTime" value="2" /> 
+        <property name="receiveBufferSize" value="65536" /> 
+        <property name="sendBufferSize" value="65536" /> 
+        <property name="tcpNoDelay" value="true" /> 
+        <property name="thoughputCalcInterval" value="3" /> 
+        <property name="trafficClass" value="0" /> 
+    </bean> 
+</beans>

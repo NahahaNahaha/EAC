@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+	<display-name>streammanager</display-name>
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>/streammanager</param-value>
+	</context-param>
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+		<welcome-file>index.html</welcome-file>
+		<welcome-file>index.htm</welcome-file>
+	</welcome-file-list>
+	<listener>
+		<listener-class>org.red5.logging.ContextLoggingListener</listener-class>
+	</listener>
+	<!-- <filter>
+		<filter-name>LoggerContextFilter</filter-name>
+		<filter-class>org.red5.logging.LoggerContextFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>LoggerContextFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping> -->
+	<servlet>
+		<servlet-name>dispatcher</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<url-pattern>/api/3.1/*</url-pattern>
+	</servlet-mapping>
+
+	<!-- <servlet> <servlet-name>cloudwatch</servlet-name> <servlet-class>com.red5pro.services.streammanager.servlet.CloudWatch</servlet-class> 
+		<load-on-startup>-1</load-on-startup> </servlet> -->
+
+	<servlet>
+		<servlet-name>cloudwatch</servlet-name>
+		<servlet-class>com.red5pro.services.streammanager.servlet.CloudWatchBase</servlet-class>
+		<load-on-startup>-1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>cloudwatch</servlet-name>
+		<url-pattern>/cloudwatch/*</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<filter-name>authFilter</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>authFilter</filter-name>
+		<url-pattern>/api/3.1/admin/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+	</filter-mapping>
+</web-app>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean name="hlsConfig" class="com.red5pro.stream.transform.mpegts.HLSConfig" >
+		<!-- Number of items in the HLS playlist -->
+	 	<property name="itemCount" value="5"/>	 	
+	 	<!-- The segment duration in seconds for each item.  -->
+	 	<property name="itemLength" value="6"/>
+	 	<!-- The segment duration variance. The range should be higher than 0.5 and lower than 1.0.
+	 	That is to configure segments generated more than half of the desired duration. 
+	 	The effectivness of segmentation is dependant on the keyframe interval -->
+	 	<property name="itemThreshold" value="0.7"/>
+		<!--  -->
+	 	<property name="useDiskWrites" value="true"/>
+        <!-- Provide post-processing for recorded HLS files -->
+        <property name="writerPostProcessors">
+            <set>
+                <!-- Creates a VOD playlist with associated segments and moves it to vod app or s3 upload -->
+                <value>com.red5pro.stream.transform.mpegts.processor.VODFilePostProcessor</value>
+                <!-- Cleans up the .ts and .m3u8 files if they were written -->
+                <value>com.red5pro.stream.transform.mpegts.processor.SegmentCleanupPostProcessor</value>
+            </set>
+        </property>
+        <!-- Debug mode -->
+        <property name="debug" value="false"/>
+        <!-- Force VOD recording -->
+        <property name="forceVODRecord" value="false"/>
+        <!-- Cloudstorage service name (S3Uploader or GStorageUploader)-->
+        <property name="cloudstorageServiceName" value="S3Uploader"/>
+    </bean>
+     
+</beans>

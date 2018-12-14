@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+    	http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context 
+        http://www.springframework.org/schema/context/spring-context.xsd">
+        
+    
+    <context:annotation-config />
+    <context:component-scan base-package="com.red5pro.services.streammanager" />  
+    
+    
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	    <property name="messageConverters">
+	        <list>
+	        	<bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+	            <bean class="org.springframework.http.converter.json.GsonHttpMessageConverter"/>
+	        </list>
+	    </property>
+	</bean>
+    
+    
+    <mvc:annotation-driven>
+		<mvc:path-matching registered-suffixes-only="true"/>
+	</mvc:annotation-driven>
+	
+	
+	<mvc:resources mapping="/images/**" location="/images/" />
+	<mvc:resources mapping="/scripts/**" location="/layout/" />
+	<mvc:resources mapping="/style/**" location="/style/" />
+	<mvc:resources mapping="/docs/**" location="/docs/" />
+    
+    
+    
+    <!--  include stream manager beans and configurations -->
+    <import resource="applicationContext.xml"/>
+    
+    
+	
+	
+	
+	
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix">
+            <value>/WEB-INF/pages/</value>
+        </property>
+        <property name="suffix">
+            <value>.jsp</value>
+        </property>
+    </bean>
+
+</beans>

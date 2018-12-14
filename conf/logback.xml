@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<configuration>
+
+  <jmxConfigurator/>
+
+  <appender class="ch.qos.logback.core.ConsoleAppender" name="CONSOLE">
+    <encoder>
+      <pattern>[%p] [%thread] %logger - %msg%n</pattern>
+    </encoder>
+  </appender>
+   
+  <appender class="ch.qos.logback.core.FileAppender" name="FILE">
+    <file>log/red5.log</file>
+    <append>false</append>
+    <encoder>
+      <pattern>%d{ISO8601} [%thread] %-5level %logger{35} - %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="INFO">
+    <appender-ref ref="CONSOLE"/>
+    <appender-ref ref="FILE"/>    
+  </root>
+
+  <!-- Streammanager debugging --> 
+   <logger name="com.red5pro.services.streammanager" level="WARN" />  
+
+  <!-- HLS debugging --> 
+  <logger name="com.red5pro.stream.transform" level="WARN"/>
+  
+  <!-- Cluster debugging --> 
+  <logger name="com.red5pro.cluster.plugin" level="WARN"/>
+  
+   <!-- Auto-scale debugging --> 
+  <logger name="com.red5pro.clustering.autoscale" level="WARN"/>
+  
+  <!-- Video related decoding and encoding messages for RTP serialization 
+  In debug mode, this will log packet types. and syntax errors-->
+  <logger name="com.red5pro.rtsp.rtp.handlers.codec.H264" level="WARN"/>
+  
+  <!-- Logger for debugging rtsp over TCP 
+  In debug mode, this will log out channel messages received. Trace mode, will log out parsing tcp packets.-->
+  <logger name="com.red5pro.rtsp.handlers.TCPTransportHandler" level="OFF"/>
+  
+  <!--  Session level logger for RTSP connections 
+    This will log out notify messages being written to an rtsp connection.-->
+  <logger name="com.red5pro.rtsp.RTSPMinaConnection" level="WARN"/>
+  
+  <!-- Reading packet types and channels to determing which codec should handle it.
+  IN debug mode, it will log media packet channles received, and out of band messages such as net connection call. -->
+  <logger name="com.red5pro.rtsp.rtp.Packet" level="OFF"/>
+  
+  <!-- User story logging related to streaming media uostream and downstream. 
+  IN debug mode it will tell a detailed story about setting up a published stream.
+  In WARN mode it will log the highlights of the publish stream lifecycle -->
+  <logger name="com.red5pro.rtsp.RTSPHandler" level="WARN"/>
+  
+  <!-- Logger for looking up resources and creating SDP responses. 
+  IN debug mode, it will expand upon the user story for the RTSPHandler-->
+  <logger name="com.red5pro.rtsp.util.RTSPIO" level="INFO"/>
+  
+  <logger name="com.red5pro.server.stream.Red5ProIO" level="WARN"/>
+  
+  <!-- WebRTC entry point -->
+  <logger name="com.red5pro.webrtc.websocket.listener.JSONDataListener" level="WARN"/>
+  
+  <!-- RTC base connection -->
+  <logger name="com.red5pro.webrtc.RTCConnection" level="WARN"/>
+  
+  <!-- RTC publisher transformer  -->
+  <logger name="com.red5pro.webrtc.stream.RTCSourceStream" level="WARN"/>
+  
+  <!-- RTC subscriber Side stream performing transform to webrtc format-->
+  <logger name="com.red5pro.webrtc.stream.FlashToRTCTransformerStream" level="WARN"/>
+  
+  <!-- SideStream consumer routes packets to socket-->
+  <logger name="com.red5pro.webrtc.stream.RTCBroadcastStream" level="WARN"/>
+
+  <!-- Core WebRTC related loggers -->
+  <logger name="javax.media" level="WARN"/>
+  <logger name="net.sf.fmj" level="WARN"/>
+  
+  <logger name="org.ice4j" level="WARN"/>
+
+  <logger name="org.jitsi" level="WARN"/>
+
+  <logger name="com.red5pro.jmfext.protocol.rtc" level="WARN"/>
+  <logger name="com.red5pro.media.transform.codec.LibraryLoader" level="WARN"/>
+  <logger name="com.red5pro.webrtc.util.CandidateParser" level="WARN"/>
+  <logger name="com.red5pro.webrtc.service" level="WARN"/>
+
+  <!-- Open source loggers -->
+  <!-- Clustering log noise for chunk size not impl'ed error -->
+  <logger name="org.red5.client.net.rtmp.BaseRTMPClientHandler" level="WARN"/>
+  <logger name="org.red5.codec" level="OFF"/>
+  <logger name="org.red5.io" level="OFF"/>
+  <logger name="org.red5.net.websocket.codec" level="WARN"/>
+  <logger name="org.red5.server.BaseConnection" level="OFF"/>
+  <logger name="org.red5.server.Context" level="OFF"/>
+  <logger name="org.red5.server.api.Red5" level="OFF"/>
+  <logger name="org.red5.server.net" level="OFF"/>
+  <logger name="org.red5.server.scheduling" level="INFO"/>
+  <logger name="org.red5.server.scope.WebScope" level="OFF"/>
+  <logger name="org.red5.server.service" level="WARN"/>
+  <logger name="org.red5.server.service.ServiceInvoker" level="OFF"/>
+  <logger name="org.red5.server.stream" level="OFF"/>
+  <logger name="org.red5.server.tomcat" level="OFF"/>
+  <logger name="org.red5.spring" level="WARN"/>
+  <logger name="org.apache" level="OFF"/>
+  <logger name="org.apache.jasper" level="WARN"/>
+  <logger name="org.quartz" level="OFF"/>
+  <logger name="org.spring" level="OFF"/>
+  <logger name="org.springframework" level="OFF"/>
+</configuration>

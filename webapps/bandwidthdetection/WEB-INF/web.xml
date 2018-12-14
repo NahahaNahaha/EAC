@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app version="3.0" 
+         xmlns="http://java.sun.com/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+         http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
+         
+    <display-name>bandwidthdetection</display-name>       
+    <context-param>
+        <param-name>webAppRootKey</param-name>
+        <param-value>/bandwidthdetection</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>bwdtct</servlet-name>
+        <servlet-class>com.infrared5.red5pro.bandwidthdetection.DetectServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>bwdtct</servlet-name>
+        <url-pattern>/detect</url-pattern>
+    </servlet-mapping>
+    <!-- CORS filter with wideopen origin by default -->
+    <filter>
+        <filter-name>CORS</filter-name>
+        <filter-class>com.thetransactioncompany.cors.CORSFilter</filter-class>
+        <async-supported>true</async-supported>
+        <init-param>
+            <param-name>cors.allowOrigin</param-name>
+            <param-value>*</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.allowSubdomains</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.supportedMethods</param-name>
+            <param-value>GET, HEAD</param-value>
+        </init-param>
+        <init-param>
+            <param-name>cors.maxAge</param-name>
+            <param-value>3600</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CORS</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>

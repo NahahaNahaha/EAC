@@ -1,0 +1,452 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<!-- Defines a properties file for dereferencing variables -->
+	<bean
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location"
+			value="/WEB-INF/red5-web.properties" />
+	</bean>
+
+	<bean id="applicationSettings"
+		class="com.red5pro.services.streammanager.ApplicationSettings"
+		init-method="initialize">
+		<property name="dbName" value="cluster" />
+		<property name="dbHost" value="${config.dbHost}" />
+		<property name="dbPort" value="${config.dbPort}" />
+		<property name="dbUsername" value="${config.dbUser}" />
+		<property name="dbPassword" value="${config.dbPass}" />
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver" />
+		<property name="initialDbConnections" value="0" />
+		<property name="maxActiveDbConnections" value="100" />
+		<property name="maxIdleDbConnections" value="5" />
+		<property name="nodePingTimeThreshold"
+			value="#{${cluster.reportingSpeed} * 6}" />
+		<property name="maxNoPingExcuseTime"
+			value="#{${cluster.reportingSpeed} * 8}" />
+		<property name="newNodePingTimeThreshold"
+			value="${instancecontroller.newNodePingTimeThreshold}" />
+		<property name="replaceDeadClusters"
+			value="${instancecontroller.replaceDeadClusters}" />
+		<property name="deleteDeadGroupNodesOnCleanUp"
+			value="${instancecontroller.deleteDeadGroupNodesOnCleanUp}" />
+		<property name="deadNodesCheckUpInterval"
+			value="#{${cluster.reportingSpeed} * 1.5}" />
+		<property name="instanceNamePrefix"
+			value="${instancecontroller.instanceNamePrefix}" />
+		<property name="nodeGroupStateToleranceTime"
+			value="${instancecontroller.nodeGroupStateToleranceTime}" />
+		<property name="nodeStateToleranceTime"
+			value="${instancecontroller.nodeStateToleranceTime}" />
+		<property name="cloudCleanupInterval"
+			value="${instancecontroller.cloudCleanupInterval}" />
+		<property name="blackListCleanUpTime"
+			value="${instancecontroller.blackListCleanUpTime}" />
+		<property name="pathMonitorInterval"
+			value="${instancecontroller.pathMonitorInterval}" />
+		<property name="minimumNodeFreeMemory"
+			value="${instancecontroller.minimumNodeFreeMemory}" />
+		<property name="clusterInductionToleranceTime"
+			value="#{${cluster.reportingSpeed} * 3}" />
+		<property name="serverApiPort" value="${serverapi.port}" />
+		<property name="serverApiProtocol"
+			value="${serverapi.protocol}" />
+		<property name="serverApiVersion"
+			value="${serverapi.version}" />
+		<property name="serverApiAccessToken"
+			value="${serverapi.accessToken}" />
+		<property name="logAccess" value="${debug.logaccess}" />
+		<property name="logCacheExpireTime"
+			value="${debug.logcachexpiretime}" />
+	</bean>
+
+	<!-- Database Management Components -->
+
+	<bean id="dbConnection"
+		class="com.red5pro.services.streammanager.database.jdbc.sql.SQLTest"
+		init-method="initialize">
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+	</bean>
+
+	<bean id="dbManager"
+		class="com.red5pro.services.streammanager.database.jdbc.DataManager"
+		init-method="getInstance">
+		<property name="sql" ref="dbConnection" />
+	</bean>
+
+	<!-- Stream Manager Store -->
+
+	<bean id="streamStore"
+		class="com.red5pro.services.streammanager.components.store.StreamManagerRDSStore"
+		init-method="initialize" depends-on="dbManager">
+		<property name="maintenanceIntervalMilliseconds"
+			value="1800000 " />
+		<property name="usageStatsDiscardThresholdDays"
+			value="${store.usageStatsDiscardThresholdDays}" />
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+	</bean>
+
+	<!-- Policy Management Components -->
+
+	<bean id="policyOperator"
+		class="com.red5pro.services.streammanager.autoscaling.components.operators.DatabaseScalePolicyOperator"
+		init-method="initialize">
+		<property name="store" ref="streamStore" />
+	</bean>
+
+	<bean id="policyController"
+		class="com.red5pro.services.streammanager.autoscaling.components.Red5ScalePolicyController"
+		init-method="initialize">
+		<property name="policyOperator" ref="policyOperator" />
+	</bean>
+
+	<bean id="policyManager"
+		class="com.red5pro.services.streammanager.autoscaling.components.Red5ScalePolicyManager"
+		init-method="initialize">
+		<property name="policyController" ref="policyController" />
+	</bean>
+
+	<bean id="launchConfigOperator"
+		class="com.red5pro.services.streammanager.autoscaling.components.operators.DatabaseLaunchConfigurationOperator"
+		init-method="initialize">
+		<property name="store" ref="streamStore" />
+	</bean>
+
+
+	<bean id="launchConfigController"
+		class="com.red5pro.services.streammanager.nodes.component.Red5LaunchConfigurationController"
+		init-method="initialize">
+		<property name="configurationOperator"
+			ref="launchConfigOperator" />
+	</bean>
+
+	<bean id="launchConfigManager"
+		class="com.red5pro.services.streammanager.nodes.component.Red5LaunchConfigurationManager"
+		init-method="initialize">
+		<property name="configController"
+			ref="launchConfigController" />
+	</bean>
+
+	<!-- Instance Management Components -->
+
+	<!-- Default CONTROLLER -->
+
+	<bean id="apiBridge"
+		class="com.red5pro.services.streammanager.cloud.sample.component.DummyCloudController"
+		init-method="initialize">
+	</bean>
+
+	<!-- AWS CONTROLLER -->
+	<!-- <bean id="apiBridge" class="com.red5pro.services.cloud.aws.component.AWSInstanceController" 
+		init-method="initialize"> <property name="accessKey" value="${aws.accessKey}"/> 
+		<property name="accessSecret" value="${aws.accessSecret}"/> <property name="ec2KeyPairName" 
+		value="${aws.ec2KeyPairName}"/> <property name="ec2SecurityGroup" value="${aws.ec2SecurityGroup}"/> 
+		<property name="defaultZone" value="${aws.defaultzone}"/> <property name="defaultVPC" 
+		value="${aws.defaultVPC}"/> <property name="vpcName" value="${aws.vpcName}"/> 
+		<property name="operationTimeoutMilliseconds" value="${aws.operationTimeoutMilliseconds}"/> 
+		<property name="faultZoneBlockMilliseconds" value="${aws.faultZoneBlockMilliseconds}"/> 
+		<property name="forUsGovRegions" value="${aws.forUsGovRegions}"/> </bean> -->
+
+	<!-- AZURE CONTROLLER -->
+	<!-- <bean id="apiBridge" class="com.red5pro.services.cloud.microsoft.component.AzureComputeController" 
+		init-method="initialize"> <property name="resourceGroupName" value="${az.resourceGroupName}"/> 
+		<property name="resourceGroupRegion" value="${az.resourceGroupRegion}"/> 
+		<property name="resourceNamePrefix" value="${az.resourceNamePrefix}"/> <property 
+		name="instanceNamePrefix" value="${instancecontroller.instanceNamePrefix}"/> 
+		<property name="clientId" value="${az.clientId}"/> <property name="clientKey" 
+		value="${az.clientKey}"/> <property name="tenantId" value="${az.tenantId}"/> 
+		<property name="subscriptionId" value="${az.subscriptionId}"/> <property 
+		name="vmUsername" value="${az.vmUsername}"/> <property name="vmPassword" 
+		value="${az.vmPassword}"/> <property name="defaultSubnetName" value="${az.defaultSubnetName}"/> 
+		<property name="operationTimeoutMilliseconds" value="${az.operationTimeoutMilliseconds}"/> 
+		<property name="quickOperationResponse" value="${az.quickOperationResponse}"/> 
+		<property name="quickResponseCheckInitialDelay" value="${az.quickResponseCheckInitialDelay}"/> 
+		<property name="apiLogLevel" value="${az.apiLogLevel}"/> </bean> -->
+
+	<!-- GOOGLE COMPUTE CONTROLLER -->
+	<!-- <bean id="apiBridge" class="com.red5pro.services.cloud.google.component.ComputeInstanceController" 
+		init-method="initialize"> <property name="project" value="${compute.project}"/> 
+		<property name="defaultZone" value="${compute.defaultzone}"/> <property name="defaultDiskType" 
+		value="${compute.defaultdisk}"/> <property name="operationTimeoutMilliseconds" 
+		value="${compute.operationTimeoutMilliseconds}"/> </bean> -->
+
+	<!-- LIMELIGHT-CLOUD CONTROLLER -->
+	<!-- <bean id="apiBridge" class="com.red5pro.cloud.limelight.controllers.LimelightCloudController" 
+		init-method="initialize"> <property name="operationTimeoutMilliseconds" value="${limelight.operationTimeoutMilliseconds}" 
+		/> <property name="regionNames" value="${limelight.regionNames}" /> <property 
+		name="availabilityZoneNames" value="${limelight.availabilityZoneNames}" /> 
+		<property name="protocol" value="${serverapi.protocol}" /> <property name="port" 
+		value="${limelight.port}" /> <property name="user" value="${limelight.user}" 
+		/> <property name="password" value="${limelight.pwd}" /> <property name="dbhost" 
+		value="${config.dbHost}" /> <property name="dbport" value="${config.dbPort}" 
+		/> <property name="dbuser" value="${config.dbUser}" /> <property name="dbpassword" 
+		value="${config.dbPass}" /> <property name="accessToken" value="${serverapi.accessToken}" 
+		/> <property name="recycleDeadNodes" value="${limelight.recycleDeadNodes}" 
+		/> </bean> -->
+
+	<!-- SIMULATED-CLOUD CONTROLLER -->
+	<!-- <bean id="apiBridge" class="com.red5pro.services.simulatedcloud.generic.component.GenericSimulatedCloudController" 
+		init-method="initialize"> <property name="operationTimeoutMilliseconds" value="${managed.operationTimeoutMilliseconds}" 
+		/> <property name="regionNames" value="${managed.regionNames}" /> <property 
+		name="availabilityZoneNames" value="${managed.availabilityZoneNames}" /> 
+		<property name="recycleDeadNodes" value="${managed.recycleDeadNodes}" /> 
+		</bean> -->
+
+	<!-- origin score evaluation metrics and components start -->
+
+	<bean id="freeConnectionSlotsMetric"
+		class="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+		<property name="metricName">
+			<value>clientCount</value>
+		</property>
+		<property name="unit">
+			<value>PERCENTAGE</value>
+		</property>
+		<property name="minValue">
+			<value>0</value>
+		</property>
+		<property name="maxValue">
+			<value>100</value>
+		</property>
+		<property name="direction">
+			<value>LOWERBETTER</value>
+		</property>
+		<property name="metricWeight">
+			<value>${instanceevaluator.streams.metricweight}</value>
+		</property>
+	</bean>
+
+	<bean id="streamCountMetric"
+		class="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+		<property name="metricName">
+			<value>publisherCount</value>
+		</property>
+		<property name="unit">
+			<value>PERCENTAGE</value>
+		</property>
+		<property name="minValue">
+			<value>0</value>
+		</property>
+		<property name="maxValue">
+			<value>100</value>
+		</property>
+		<property name="direction">
+			<value>LOWERBETTER</value>
+		</property>
+		<property name="metricWeight">
+			<value>${instanceevaluator.streams.metricweight}</value>
+		</property>
+	</bean>
+
+	<bean id="availableMemoryMetric"
+		class="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+		<property name="metricName">
+			<value>availableMemory</value>
+		</property>
+		<property name="unit">
+			<value>PERCENTAGE</value>
+		</property>
+		<property name="minValue">
+			<value>0</value>
+		</property>
+		<property name="maxValue">
+			<value>100</value>
+		</property>
+		<property name="direction">
+			<value>HIGHERBETTER</value>
+		</property>
+		<property name="metricWeight">
+			<value>${instanceevaluator.memory.metricweight}</value>
+		</property>
+	</bean>
+
+	<bean id="subscriberCountMetric"
+		class="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+		<property name="metricName">
+			<value>edgeSubscriberCount</value>
+		</property>
+		<property name="unit">
+			<value>PERCENTAGE</value>
+		</property>
+		<property name="minValue">
+			<value>0</value>
+		</property>
+		<property name="maxValue">
+			<value>100</value>
+		</property>
+		<property name="direction">
+			<value>LOWERBETTER</value>
+		</property>
+		<property name="metricWeight">
+			<value>${instanceevaluator.subscribers.metricweight}</value>
+		</property>
+	</bean>
+
+	<bean id="restreamerCountMetric"
+		class="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+		<property name="metricName">
+			<value>restreamerCount</value>
+		</property>
+		<property name="unit">
+			<value>PERCENTAGE</value>
+		</property>
+		<property name="minValue">
+			<value>0</value>
+		</property>
+		<property name="maxValue">
+			<value>100</value>
+		</property>
+		<property name="direction">
+			<value>LOWERBETTER</value>
+		</property>
+		<property name="metricWeight">
+			<value>${instanceevaluator.restreamer.metricweight}</value>
+		</property>
+	</bean>
+
+	<bean id="serverMetricsEvaluator"
+		class="com.red5pro.services.streammanager.nodes.component.InstanceMetricsRuleManager">
+
+		<property name="originMetricRules">
+			<list
+				value-type="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+				<ref bean="freeConnectionSlotsMetric"></ref>  <!-- dynamically injected metrics -->
+				<ref bean="streamCountMetric"></ref>  <!-- dynamically injected metrics -->
+				<ref bean="subscriberCountMetric"></ref>  <!-- dynamically injected metrics -->
+			</list>
+		</property>
+
+		<property name="edgeMetricRules">
+			<list
+				value-type="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+				<ref bean="freeConnectionSlotsMetric"></ref>  <!-- dynamically injected metrics -->
+				<ref bean="availableMemoryMetric"></ref>  <!-- dynamically injected metrics -->
+			</list>
+		</property>
+
+		<property name="relayMetricRules">
+			<list
+				value-type="com.red5pro.services.streammanager.nodes.metrics.MetricRule">
+				<ref bean="restreamerCountMetric"></ref>  <!-- dynamically injected metrics -->
+				<ref bean="availableMemoryMetric"></ref>  <!-- dynamically injected metrics -->
+			</list>
+		</property>
+
+	</bean>
+
+	<!-- origin score evaluation metrics and components end -->
+
+	<bean id="clusterApiConfig"
+		class=" com.red5pro.services.streammanager.nodes.model.ClusterConfiguration">
+		<property name="clusterPassword" value="${cluster.password}" />
+		<property name="rtmpPort" value="${cluster.publicPort}" />
+		<property name="httpPort" value="${cluster.accessPort}" />
+		<property name="retryDuration"
+			value="${cluster.retryDuration}" />
+		<property name="reportingSpeed"
+			value="${cluster.reportingSpeed}" />
+		<property name="clusteringMode" value="${cluster.mode}" />
+		<property name="idleClusterPathThreshold"
+			value="${cluster.idleClusterPathThreshold}" />
+	</bean>
+
+	<!-- Location aware configuration -->
+	<bean id="locationAwareConfig"
+		class="com.red5pro.services.streammanager.model.LocationAwareConfiguration">
+		<property name="region" value="${location.region}" />
+		<property name="geozone" value="${location.geozone}" />
+		<property name="strict" value="${location.strict}" />
+	</bean>
+
+	<!-- Location Manager -->
+	<bean id="locationManager"
+		class="com.red5pro.services.streammanager.location.component.LocationManager">
+		<property name="controller" ref="apiBridge" />
+		<property name="locationAwareConfig"
+			ref="locationAwareConfig" />
+		<property name="store" ref="streamStore" />
+	</bean>
+
+	<!-- Node and NodeGroup information cache -->
+	<bean id="smartNodeInfoProvider"
+		class="com.red5pro.services.streammanager.components.store.SmartStreamManagerStore">
+		<property name="cloudApiController" ref="apiBridge" />
+		<property name="groupNodeReportingSpeed"
+			value="${cluster.reportingSpeed}" />
+	</bean>
+
+	<!-- Stream provisions validaton provider -->
+	<bean id="provisionsValidationProvider"
+		class="com.red5pro.services.streammanager.nodes.provisions.SimpleProvisionsValidator">
+		<property name="allowVariantInformation" value="true" />
+	</bean>
+
+	<!-- Stream provisions translator for nodes -->
+	<bean id="provisionsTranslator"
+		class="com.red5pro.services.streammanager.nodes.provisions.SimpleProvisionsTranslator">
+	</bean>
+
+	<!-- Red5 Instance Manager Components -->
+
+	<bean id="instanceManager"
+		class="com.red5pro.services.streammanager.nodes.component.Red5InstanceController">
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+		<property name="cloudApiController" ref="apiBridge" />
+		<property name="serverMetricsEvaluator"
+			ref="serverMetricsEvaluator" />
+		<property name="clusterConfiguration" ref="clusterApiConfig" />
+		<property name="provisionsTranslator"
+			ref="provisionsTranslator" />
+		<property name="locationManager" ref="locationManager" />
+	</bean>
+
+	<!-- Autoscaler Components -->
+
+	<bean id="autoScaler"
+		class="com.red5pro.services.streammanager.autoscaling.components.Red5AutoScaleManager">
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+	</bean>
+
+
+	<!-- Log access manager component -->
+
+	<bean id="logAccessManager"
+		class="com.red5pro.services.streammanager.debugging.component.LogAccessManager">
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+	</bean>
+
+	<bean id="facade"
+		class="com.red5pro.services.streammanager.StreamManagerFacade"
+		init-method="initialize"
+		depends-on="instanceManager, streamStore, policyManager, launchConfigManager">
+		<property name="applicationSettings"
+			ref="applicationSettings" />
+		<property name="store" ref="streamStore" />
+		<property name="clusterConfiguration" ref="clusterApiConfig" />
+		<property name="smartNodeInfoProvider"
+			ref="smartNodeInfoProvider" />
+		<property name="instanceManager" ref="instanceManager" />
+		<property name="autoScaler" ref="autoScaler" />
+		<property name="configManager" ref="launchConfigManager" />
+		<property name="policyManager" ref="policyManager" />
+		<property name="logAccessManager" ref="logAccessManager" />
+		<property name="managerIp" value="${streammanager.ip}" />
+	</bean>
+
+	<!-- Simple REST security configuration for administrator -->
+	<import resource="security-config.xml" />
+
+</beans>

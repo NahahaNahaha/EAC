@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:lang="http://www.springframework.org/schema/lang"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang-3.0.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    
+    <!-- Production configuration for initial cluster node state. -->
+    <bean name="clusterConfig" class="com.red5pro.cluster.ClusterConfiguration">
+        
+        <property name="origins">
+            
+            <list>
+                <!-- Add origin ips and optionally the port if its not default 1935. Uncomment origin entries-->
+                <!-- <value>0.0.0.1</value> -->
+                <!-- <value>0.0.0.2:1935</value> -->
+            </list>
+            
+        </property>
+        <!-- edge/origin link cluster password -->
+        <property name="password" value="changeme" />
+        <!-- THIS SERVER'S public ip used for round-robin at the origin server. -->
+        <property name="publicIp" value="0.0.0.0" />
+        <!-- THIS SERVER'S public RTMP port.-->
+        <property name="publicPort" value="1935" />
+        <!-- edges and origin can be excluded from round robin queries. -->
+        <!-- set PrivateInstance to true to exclude this instance in round robin subscriber queries. -->
+        <property name="privateInstance" value="false" />
+        <!-- For an edge, it is the interval in seconds to retry to connect to origin if the origin becomes unavailable. -->
+        <property name="retryDuration" value="30" />
+        <!-- Remove clients automatically when publish stops. clients may not receive unpublish event if true. -->
+        <property name="kickOnUnpublish" value="false" />
+        <!-- On demand streaming -->
+        <property name="streamOnDemand" value="false" />
+    </bean>
+</beans>

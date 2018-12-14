@@ -1,0 +1,42 @@
+Build: red5pro-server-5.3.0.b291-release
+------------
+Introduction
+------------
+This file describes the dependencies Red5 Pro is built against.
+
+-----------------
+System Properties
+-----------------
+Linux version 3.13.0-36-generic (buildd@toyol) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #63-Ubuntu SMP Wed Sep 3 21:30:07 UTC 2014
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 14.04.1 LTS
+Release:	14.04
+Codename:	trusty
+
+------------
+Java Version
+------------
+java version "1.7.0_65"
+OpenJDK Runtime Environment (IcedTea 2.5.3) (7u71-2.5.3-0ubuntu0.14.04.1)
+OpenJDK 64-Bit Server VM (build 24.65-b04, mixed mode)
+
+-------------
+Maven Version
+-------------
+Apache Maven 3.3.9 (bb52d8502b132ec0a5a3f4c09453c07478323dc5; 2015-11-10T16:41:47+00:00)
+Maven home: /usr/share/maven3
+Java version: 1.8.0_111, vendor: Oracle Corporation
+Java home: /usr/lib/jvm/java-8-oracle/jre
+Default locale: en_US, platform encoding: ANSI_X3.4-1968
+OS name: "linux", version: "3.13.0-36-generic", arch: "amd64", family: "unix"
+
+-------------------------------
+Open Source Red5 Server Version
+-------------------------------
+red5-server-1.0.10-M7
+
+-------------------------------
+Open Source Red5 Client Version
+-------------------------------
+red5-client-1.0.10-M8

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+	
+	<!--
+	Defines a properties file for dereferencing variables
+	-->
+	<bean id="placeholderConfig" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	    <property name="location" value="/WEB-INF/red5-web.properties" />
+	</bean>
+	
+	
+	
+	
+	
+	<!--
+	Defines the web context
+	-->
+	<bean id="web.context" class="org.red5.server.Context" 
+		autowire="byType" />
+	
+	
+	
+	
+	<!--
+	Defines the web scopes
+	-->
+	<bean id="web.scope" class="org.red5.server.scope.WebScope"
+		 init-method="register">
+		<property name="server" ref="red5.server" />
+		<property name="parent" ref="global.scope" />
+		<property name="context" ref="web.context" />
+		<property name="handler" ref="web.handler" />
+		<property name="contextPath" value="${webapp.contextPath}" />
+		<property name="virtualHosts" value="${webapp.virtualHosts}" />
+	</bean>
+	
+	
+	
+	
+	<!--
+	Defines Websocket proxy configuration object
+	-->
+	<bean id="websocketProxyConfiguration" class="com.red5pro.services.streammanager.webrtc.model.ProxyConfiguration">
+		<property name="enabled" value="${proxy.enabled}" />
+		<property name="targetProtocol" value="ws" />
+		<property name="targetPort" value="8081" />
+		<property name="connectivityCheckInterval" value="15000" />
+		<property name="maxPingDelay" value="50000" />
+		<property name="maxPongDelay" value="50000" />
+		<property name="candidateDelay" value="300" />
+		<property name="sharedContainerEnabled" value="true" />
+		<property name="sharedContrainerTimeoutSeconds" value="10" />
+		<property name="selectorCorePoolSize" value="5" />
+		<property name="selectorMaxPoolSize" value="-1" />
+		<property name="workerCorePoolSize" value="3" />
+		<property name="workerMaxPoolSize" value="-1" />
+	</bean>
+	
+	
+
+	
+	<!--
+	Defines the web handler which acts as an applications endpoint
+	-->
+	<bean id="web.handler" class="com.red5pro.services.streammanager.Application">
+		<property name="proxyConfiguration" ref="websocketProxyConfiguration" />
+	</bean>
+	
+	
+	
+	
+	
+	<!-- WebSocket scope with our listeners -->
+    <bean id="webSocketScopeDefault" class="org.red5.net.websocket.WebSocketScope" lazy-init="true">
+        <!-- Application scope -->
+        <constructor-arg ref="web.scope" />
+        <!-- The ws scope listeners -->
+        <property name="listeners">
+            <list>
+                <bean id="compatJsonDataListener" class="com.red5pro.services.streammanager.webrtc.listener.JsonDataProxyListener">
+                    <property name="appScope" ref="web.scope" />
+                </bean>
+            </list>
+        </property>
+    </bean>
+    
+
+	
+	<!-- RTMP Access level security block start -->
+	
+	<bean id="playbackSecurity" class="com.red5pro.services.streammanager.security.PlaybackSecurity" init-method="init">
+		<property name="application" ref="web.handler"/>
+	</bean>
+	
+	
+	<bean id="publishSecurity" class="com.red5pro.services.streammanager.security.PublishSecurity" init-method="init">
+		<property name="application" ref="web.handler"/>
+	</bean>
+	
+	
+	<bean id="soSecurity" class="com.red5pro.services.streammanager.security.SharedObjectSecurity" init-method="init">
+		<property name="application" ref="web.handler"/>
+	</bean>
+	
+
+
+	<bean id="securityLoader" class="com.red5pro.services.streammanager.security.SecurityLoader" init-method="init">
+		<property name="application" ref="web.handler"/>
+		<property name="playbackSecurity" ref="playbackSecurity"/>
+		<property name="publishSecurity" ref="publishSecurity"/>
+		<property name="sharedObjectSecurity" ref="soSecurity"/>
+	</bean>
+	
+	
+	
+	<!-- Simple REST security configuration for administrator -->
+	<import resource="security-config.xml" />
+	
+ 
+</beans>

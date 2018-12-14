@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- Removed due to RTCConnection handling its own keep-alive process -->
+	<!-- 
+    <bean id="service.pinger" class="com.red5pro.webrtc.service.PingService" scope="prototype" />
+    -->
+
+    <bean id="service.session" class="com.red5pro.webrtc.service.RTCSessionService" scope="prototype">
+        <!-- Stream debugging flag -->
+        <property name="debugStreams" value="false" />
+        <!-- Preferred audio codec for WebRTC subscribers -->
+        <property name="rtcOutAudioCodec" value="OPUS" />
+        <!-- Preferred video codec for WebRTC subscribers (VP8 or H264) -->
+        <property name="rtcOutVideoCodec" value="H264" />
+        <!-- H264 profile level id for overriding offered 42e01f is baseline 3.1 and default -->
+        <property name="h264Profile" value="42e01f" />
+        <!-- Enable packetizationMode for h264 output -->
+        <property name="packetizationMode" value="1" />
+        <!-- Sleep time in milliseconds for the ICE loop -->
+        <property name="iceAgentSleepPeriod" value="1000" />
+        <!-- Enable sending of periodic PLI to the RTC publisher -->
+        <property name="sendPeriodicPLI" value="true" />
+    </bean>
+
+</beans>
